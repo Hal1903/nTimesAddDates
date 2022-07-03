@@ -1,0 +1,52 @@
+‘ By putting date on cell AU1 and how many (nth) dates should be added next to that date on AU2, this code will add date(s) for nth times. Essentially it’s almost the same as the code above.
+‘ If you would like to change where you input the date and nth, modify the highlighted part
+Sub nthAddDate()
+    'take an input of date and how many dates to add
+    Dim start As Date
+    Dim nth As Integer
+    start = Format(Range("AU1").Value, "d-mmm")
+    nth = Range("AU2").Value + 1
+    Debug.Print start & " and " & nth
+    Dim count As Integer
+'increment for dates from yesterday, needed to generate the dates for tomorrow, day after tomorrow, and so on.
+    Dim incr As Integer
+'container of days
+    ReDim dayArray(nth) As Integer
+    incr = 1
+    ReDim dateArray(nth) As Date
+'array index that increases after successful addition to the array
+    count = 1
+    Dim st As String
+    st = ""
+'loop for completing the array
+    While count < nth
+        Dim dat As Date
+        dat = start + incr
+        wday_d = Weekday(dat)
+        If wday_d <> 1 And wday_d <> 7 Then
+            dateArray(count) = dat
+            dayArray(count) = wday_d
+            count = count + 1
+            st = st & dat & ", "
+        End If
+        incr = incr + 1
+    Wend
+    Debug.Print (st)
+'increment to move one right column and fill the date
+    Dim columnIncr As Integer
+    Dim c As Integer
+    c = 0
+    For Each cell In ActiveSheet.UsedRange
+        columnIncr = 1
+'conditional statement determining the variable type of a cell value
+'also determining the cell value is equal to yesterday's date
+        If VarType(cell) = 7 And Format(cell.Value, "m/d/yyyy") = start Then
+'Filling the column by dates
+            For d = 1 To nth - 1
+                cell.Offset(0, columnIncr).NumberFormat = "d-mmm"
+                cell.Offset(0, columnIncr).Value = Format(dateArray(d), "d-mmm")
+                columnIncr = columnIncr + 1
+            Next d
+        End If
+    Next cell
+End Sub
